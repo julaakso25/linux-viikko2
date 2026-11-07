@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="fi"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JLinux | Latauslaskuri</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#faf6eb;color:#202d29;font:1.1rem/1.55 system-ui,sans-serif}
+main{max-width:44rem;margin:auto;padding:3rem 1.2rem}header,footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+header{border-bottom:2px solid;padding-bottom:.8rem}h1{font: bold clamp(2rem,8vw,4rem)/1.05 Georgia,serif;margin:2rem 0 1rem}
+.counter{background:#174639;color:#fff7df;padding:1.2rem 1.5rem;border-radius:.4rem}
+strong{display:block;font: bold clamp(3rem,13vw,6rem)/1.2 ui-monospace,monospace}
+a{color:#175b47} h2{font: bold 1.5rem Georgia,serif;margin:2rem 0 .4rem}p{margin:.6rem 0}footer{border-top:1px solid;margin-top:2rem;padding-top:1rem}
+</style>
+<main><header><b>JLinux</b><span>Linux Administration · Viikko 2</span></header>
+<h1>Palvelimen latauslaskuri</h1><p>Jokainen tämän sivun lataus kasvattaa yhteistä lukua yhdellä. Kokeile päivittää sivu.</p>
+<div class="counter"><span>Sivulatauksia yhteensä</span><strong id="visits">$visits</strong></div>
+<h2>Mihin luku tallentuu?</h2><p>Nginx välittää pyynnön Python-sovellukselle. Sovellus kasvattaa MariaDB:n <code>counter</code>-taulun arvoa yhdellä ja vahvistaa muutoksen ennen sivun lähettämistä. Samankin selaimen uusi lataus lasketaan mukaan.</p>
+<h2>Säilyikö laskuri uudelleenkäynnistyksessä?</h2><p>$result</p>
+<footer><a href="/">Viikon 1 sivu</a><a href="$repo">Lähdekoodi ja muutokset GitHubissa</a></footer></main></html>
