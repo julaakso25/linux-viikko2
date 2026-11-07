@@ -39,7 +39,7 @@ restore_site() {
   sudo nginx -t && sudo systemctl reload nginx
 }
 if ! sudo nginx -t || ! sudo systemctl reload nginx; then restore_site; exit 1; fi
-if ! curl -fsS http://127.0.0.1/viikko2/ | grep 'id="visits"' >/dev/null ||
+if ! curl -fsS --retry 8 --retry-all-errors --retry-delay 1 --max-time 3 http://127.0.0.1/viikko2/ | grep 'id="visits"' >/dev/null ||
    [[ $(curl -fsS http://127.0.0.1/ | sha256sum) != "$before" ]]; then
   restore_site; echo "Sivutarkistus epäonnistui. Aiempi palvelinasetus palautettu."; exit 1
 fi
