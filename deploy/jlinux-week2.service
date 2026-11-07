@@ -1,0 +1,18 @@
+[Unit]
+Description=JLinux week 2 visit counter
+After=mariadb.service
+Requires=mariadb.service
+
+[Service]
+User=jlweek2
+WorkingDirectory=/opt/jlinux-week2
+EnvironmentFile=/etc/jlinux-week2.env
+ExecStart=/usr/bin/python3 -m gunicorn --bind 127.0.0.1:8762 --workers 2 app:application
+Restart=on-failure
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+
+[Install]
+WantedBy=multi-user.target
