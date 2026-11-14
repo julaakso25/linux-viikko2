@@ -1,0 +1,11 @@
+[Unit]
+Description=Generate the JLinux Week 3 status report
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/bin/bash /opt/jlinux-report/report.sh
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/html/viikko3
