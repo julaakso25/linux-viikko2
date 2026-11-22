@@ -1,0 +1,4 @@
+[mariadb]
+server_id=1
+log_bin=jlinux-a-bin
+binlog_format=ROW

@@ -1,0 +1,7 @@
+*.sql
+*.tar*
+*.tgz
+*.pem
+*.key
+repl-password
+__pycache__/

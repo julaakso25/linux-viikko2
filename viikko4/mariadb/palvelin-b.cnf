@@ -1,0 +1,5 @@
+[mariadb]
+server_id=2
+read_only=ON
+relay_log=jlinux-b-relay
+replicate_do_table=jlweek2.counter

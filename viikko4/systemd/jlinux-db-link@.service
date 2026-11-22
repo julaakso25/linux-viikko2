@@ -1,0 +1,15 @@
+[Unit]
+Description=Encrypted database stream to JLinux-A
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=jldbpipe
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+ExecStart=/usr/bin/ssh -T -o BatchMode=yes -o ClearAllForwardings=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/var/lib/jldbpipe/.ssh/known_hosts -o HostKeyAlgorithms=ssh-ed25519 -o ConnectTimeout=10 -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -i /var/lib/jldbpipe/.ssh/repl jldbpipe@192.168.1.226 db
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes

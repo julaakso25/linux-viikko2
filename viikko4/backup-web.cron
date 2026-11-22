@@ -1,0 +1,1 @@
+5 * * * * jlbackup /bin/sleep 5 && /usr/local/sbin/jlinux-web-backup cron

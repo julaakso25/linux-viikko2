@@ -1,0 +1,9 @@
+[Unit]
+Description=SSH transport for the local MariaDB replication client
+
+[Socket]
+ListenStream=127.0.0.1:13306
+Accept=yes
+
+[Install]
+WantedBy=sockets.target
