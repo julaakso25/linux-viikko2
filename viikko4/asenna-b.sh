@@ -2,11 +2,13 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 [[ $(hostname -s) == jlinux-b && $(id -u) == 0 ]] || { echo "Aja sudolla B:llä."; exit 1; }
+exec 9>/run/lock/jlinux-week4-asennus.lock
+flock -x 9
 tila=$(mariadb -NBe 'SELECT @@server_id=2 AND @@read_only=1')
-[[ $tila == 1 ]]
+[[ $tila == 1 ]] || { echo "Tarkista B:n aktiiviset asetukset: sudo mariadb -e 'SELECT @@global.server_id, @@global.read_only'"; exit 1; }
 tyo=$(mktemp -d)
 trap 'rm -rf -- "$tyo"' EXIT
-for nimi in known_hosts levyt-a.txt repl-password; do
+for nimi in known_hosts levyt-a.txt repl-password laskuri.sql; do
     tar -xzOf /home/ubuntu/jlweek4-yhteys.tgz "$nimi" > "$tyo/$nimi"
     test -s "$tyo/$nimi"
 done
@@ -15,7 +17,7 @@ install -o jldbpipe -g jldbpipe -m 600 "$tyo/known_hosts" /var/lib/jldbpipe/.ssh
 install -m 644 systemd/jlinux-db-link{.socket,@.service} systemd/jlinux-week4.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now mariadb jlinux-db-link.socket
-/usr/bin/python3 yhdista.py "$tyo/repl-password"
+/usr/bin/python3 yhdista.py "$tyo/repl-password" "$tyo/laskuri.sql"
 id jlweek4 >/dev/null 2>&1 || useradd --system --user-group --no-create-home --shell /usr/sbin/nologin jlweek4
 mariadb <<'SQL'
 CREATE USER IF NOT EXISTS 'jlweek4'@'localhost' IDENTIFIED VIA unix_socket;

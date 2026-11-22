@@ -2,8 +2,11 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 [[ $(hostname -s) == jlinux && $(id -u) == 0 ]] || { echo "Aja sudolla A:lla."; exit 1; }
-tila=$(mariadb -NBe "SELECT @@server_id=1 AND @@log_bin=1 AND @@binlog_format='ROW'")
-[[ $tila == 1 ]] || { echo "Tarkista A:n binääriloki."; exit 1; }
+tila=$(mariadb -NBe "SELECT @@global.server_id, @@global.log_bin, @@global.binlog_format")
+if [[ $tila != $'1\t1\tROW' ]]; then
+    printf 'A: server_id, log_bin ja binlog_format ovat %s. Odotettu 1, 1, ROW. Ota mariadb/palvelin-a.cnf käyttöön A:lla.\n' "$tila"
+    exit 1
+fi
 [[ -x /usr/bin/nc.openbsd ]] || { apt-get update && apt-get install -y netcat-openbsd; }
 # The forced command can reach only the database on A's own loopback interface.
 id jldbpipe >/dev/null 2>&1 || useradd --system --user-group --create-home --home-dir /var/lib/jldbpipe --shell /bin/sh jldbpipe
@@ -46,7 +49,8 @@ fi
 install -m 600 "$salasana" "$tyo/repl-password"
 printf '192.168.1.226 %s\n' "$(cut -d' ' -f1-2 /etc/ssh/ssh_host_ed25519_key.pub)" > "$tyo/known_hosts"
 bash mittaa-levyt.sh /var/www/html /var/lib/mysql > "$tyo/levyt-a.txt"
-tar -czf "$tyo/yhteys.tgz" -C "$tyo" repl-password known_hosts levyt-a.txt
+mariadb-dump --single-transaction --master-data=2 --no-create-info --skip-triggers --skip-extended-insert --where='id=1' jlweek2 counter > "$tyo/laskuri.sql"
+tar -czf "$tyo/yhteys.tgz" -C "$tyo" repl-password known_hosts levyt-a.txt laskuri.sql
 install -d -o ubuntu -g ubuntu -m 700 /home/ubuntu/jlinux-replika
 install -o ubuntu -g ubuntu -m 600 "$tyo/yhteys.tgz" /home/ubuntu/jlinux-replika/jlweek4-yhteys.tgz
 echo "A:n replikaatiotunnus ja B:n rajattu SSH-yhteys valmiina."
