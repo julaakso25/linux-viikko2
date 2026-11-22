@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JLinux-B · Laskurin lukukopio</title>
+<style>
+:root{color-scheme:light;font:17px/1.55 system-ui,sans-serif;color:#1c302d;background:#f8f5ec}
+body{max-width:820px;margin:0 auto;padding:2rem 1.25rem 4rem}
+header,footer{border-block-end:1px solid #748881;padding-bottom:.7rem}
+header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+h1,h2{font-family:Georgia,serif;line-height:1.12}h1{font-size:clamp(2.1rem,6vw,3.7rem);margin:.8em 0 .3em}
+h2{font-size:1.6rem;margin:1.4em 0 .4em}p{margin:.6em 0}a{color:#15554e;text-underline-offset:.15em}
+.counter{background:#173f38;color:#fffae9;padding:1.15rem 1.5rem;border-radius:.4rem;margin:1.2rem 0}
+.counter strong{display:block;font-size:3.5rem;line-height:1.15;font-variant-numeric:tabular-nums}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eceee4;padding:.8rem 1rem;font: .91rem/1.6 ui-monospace,monospace}
+nav{display:flex;gap:1.2rem;flex-wrap:wrap}li{margin:.35em 0}footer{border-block-start:1px solid #748881;margin-top:2rem;padding-top:1rem;border-block-end:0}
+</style></head><body><header><b>JLinux-B</b><span>Linux Administration · Viikko 4</span></header>
+<main><h1>Laskurin lukukopio</h1><p>B lukee arvon omasta MariaDB-tietokannastaan. Tämän sivun lataaminen ei kasvata laskuria. A:n laskurisivun avaaminen kasvattaa sitä yhdellä.</p>
+<div class="counter">Sivulatauksia A:lla<strong id="visits">$visits</strong></div>
+<nav><a href="http://193.166.24.87/viikko2/">A · kasvata laskuria</a><a href="http://193.166.24.105/viikko4/">B · lataa lukukopio</a><a href="https://github.com/julaakso25/linux-viikko2/tree/main/viikko4">Lähdekoodi ja muutokset</a></nav>
+<h2>Palvelimet ja tallennus</h2><p>B luotiin CSC cPoudassa A:n <code>jlinux-week4-base</code>-snapshotista. A on JLinux ja B on JLinux-B. Kummallakin on oma julkinen IP-osoite. A palvelee myös <a href="http://193.166.24.87/viikko3/">viikon 3 raporttia</a>.</p>
+<h3>A:n levyjärjestely</h3><pre>$disk_a</pre><h3>B:n levyjärjestely</h3><pre>$disk_b</pre>
+<h2>Tuntivarmistus ja oikeudet</h2><p>B:n cron käynnistää varmistuksen viisi minuuttia yli tasatunnin. B:n Linux-tunnus <code>jlbackup</code> hakee A:n <code>/var/www/html</code>-hakemiston SSH:lla. A:n <code>jlwebread</code>-tunnuksella avain saa suorittaa rajatun tar-komennon. Tunnuksella on lukuoikeus sivutiedostoihin.</p>
+<p>B säilyttää versiot aikaleimattuina arkistoina ja kirjaa ajon tuloksen tiedostoon <code>/var/backups/jlinux-web/backup.log</code>. Varmistuskansio kuuluu tunnukselle <code>jlbackup</code>. Oikeus <code>0700</code> rajaa kansion käytön omistajalle ja ylläpidolle. Arkistot ja palautettu testitiedosto ovat verkkojuuren ulkopuolella.</p>
+<h2>Jatkuva replikaatio</h2><p>A:n viikon 2 sovellus käyttää paikallista <code>jlweek2</code>-tunnusta ja kasvattaa MariaDB:n <code>jlweek2.counter</code>-taulun arvoa. Alustuksessa laskurin sisältö ja binäärilokin aloituskohta otettiin samalla tietokantavedoksella. B lukee myöhemmät muutokset A:n rivilokista omalla <code>jlrepl</code>-tunnuksella, jolla on replikaatio-oikeus.</p>
+<p>B yhdistää A:han erillisellä <code>jldbpipe</code>-avaimella projektiverkon SSH-yhteydellä. A rajaa avaimen B:n yksityiseen IP-osoitteeseen ja paikalliseen tietokantaan. B:n MariaDB on lukutilassa. B:n verkkosovelluksen Linux- ja tietokantatunnus <code>jlweek4</code> tunnistautuu Unix-socketilla. Sovelluksella on laskuritauluun vain <code>SELECT</code>-oikeus.</p>
+<h2>Testitulokset</h2><pre>$results</pre>
+<h2>Mitä tästä oppi?</h2><p>Replikaatio välittää myös vahingossa tehdyn poiston. Aiemman tietokantatilan palauttamiseen tarvittaisiin historiallinen tietokantavarmistus. Tässä työssä tuntiarkistot suojaavat sivutiedostoja, ja niiden palautettavuus tarkistetaan vertaamalla alkuperäisen ja palautetun tiedoston SHA-256-tiivisteitä.</p>
+</main><footer><a href="https://github.com/julaakso25/linux-viikko2/tree/main/viikko4">Viikon 4 GitHub-hakemisto</a></footer></body></html>
