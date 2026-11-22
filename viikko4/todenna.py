@@ -79,7 +79,7 @@ def cron_copies(text, directory):
             if not timestamp:
                 continue
             dt = datetime.fromisoformat(timestamp[0]).replace(tzinfo=timezone.utc)
-        by_hour[dt.replace(minute=0, second=0, microsecond=0)] = (dt, name)
+        by_hour[dt.replace(second=0, microsecond=0)] = (dt, name)
     return [by_hour[key] for key in sorted(by_hour)]
 
 
@@ -115,14 +115,15 @@ def publish(state):
         lines += ["B:n käynnistystunniste vaihtui. Linuxin ilmoittama käynnistysaika " + state["boot_time"] + ".", ""]
     if "files" in state:
         result = state["files"]
-        lines.append("Tuntivarmistukset ja palautus — " + result["time"])
+        lines.append("Testiajastus oli minuutin mittainen. Kaksi automaattista ajoa tarkistettiin. Lopullinen ajastus on kerran tunnissa.")
+        lines.append("Ajastetut varmistukset ja palautus — " + result["time"])
         for event in result["copies"]:
             lines.append("Cron OK · " + event)
         lines += ["Uusin näistä arkistoista syntyi B:n uudelleenkäynnistyksen jälkeen.",
                   "Palautettu erilliseen sijaintiin /var/lib/jlinux-week4/private/palautus/index.html.",
                   "A:n alkuperäisen ja B:llä palautetun index.html:n sama SHA-256:", result["hash"]]
     else:
-        lines.append("Kahden tuntivarmistuksen ja testipalautuksen tulos odottaa tarkistusta.")
+        lines.append("Kahden ajastetun varmistuksen ja testipalautuksen tulos odottaa tarkistusta.")
     atomic(STATE, json.dumps(state, ensure_ascii=False), 0o600)
     atomic(PUBLIC / "TULOKSET.md", "\n".join(lines) + "\n", 0o644)
 
@@ -158,14 +159,14 @@ def main():
         raise ValueError("Anna A:n alkuperäisen tiedoston SHA-256.")
     if not state.get("jalkeen") or state.get("boot_after") != boot:
         raise ValueError("Tee käynnistyksen jälkeinen julkinen testi ensin.")
-    deadline = time.monotonic() + 2 * 3600 + 15 * 60
+    deadline = time.monotonic() + 4 * 60
     while True:
         copies = cron_copies((BACKUPS / "backup.log").read_text(), BACKUPS)
         if len(copies) >= 2 and copies[-1][0].timestamp() >= btime:
             break
         if time.monotonic() >= deadline:
             raise ValueError("Kaksi ajastettua versiota ei toteutunut. Tarkista backup.log ja cron, korjaa syy ja aja valmis uudelleen.")
-        print(f"Odotetaan cron-ajoja. Eri tuntien onnistuneita versioita: {len(copies)}. Tarvitaan myös ajo B:n käynnistyksen jälkeen.", flush=True)
+        print(f"Odotetaan cron-ajoja. Eri minuuttien onnistuneita versioita: {len(copies)}. Tarvitaan myös ajo B:n käynnistyksen jälkeen.", flush=True)
         time.sleep(60)
     health()
     if args.phase == "odota":
@@ -175,7 +176,7 @@ def main():
     digest = restore_test(BACKUPS / latest[-1][1], args.data[0], PRIVATE / "palautus/index.html")
     state["files"] = {"time": now(), "copies": [dt.strftime("%Y-%m-%d %H:%M:%S UTC") + " · " + name for dt, name in latest], "hash": digest}
     publish(state)
-    print("PALAUTUSTESTI OK — kaksi tuntivarmistusta, uusin rebootin jälkeen ja SHA-256 täsmää.")
+    print("PALAUTUSTESTI OK — kaksi ajastettua varmistusta, uusin rebootin jälkeen ja SHA-256 täsmää.")
 
 
 if __name__ == "__main__":
